@@ -6,6 +6,15 @@
     border-color: red;
 }
 
+.red {
+    color: red;
+}
+
 .invisible {
     display: none;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: initial;
 }

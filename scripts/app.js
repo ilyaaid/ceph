@@ -6,6 +6,13 @@ class App {
         this.addListeners();
     }
 
+    lock() {
+        const pages = document.querySelector('.pages');
+        const warning = document.querySelector('.warning');
+        pages.classList.add('invisible');
+        warning.classList.remove('invisible');
+    }
+
 
     addListeners() {
         const startForm = document.querySelector('.js-start-form');
@@ -13,7 +20,14 @@ class App {
         const delOSDForm = document.querySelector('.js-del-osd');
 
         cluster.start(2, [4, 5], [3, 3]);
-        // cluster.addObject(0, 1);
+        cluster.addObject(0, 1);
+        cluster.addObject(0, 2);
+        setTimeout(() => {
+            cluster.delOSD(0, 0);
+            cluster.delOSD(0, 1);
+            // cluster.delOSD(0, 2);
+            // cluster.delOSD(0, 3);
+        }, 1000);
         delOSDForm.addEventListener('submit', this.delOSDCallback);
         startForm.addEventListener('submit', this.startCallback);
         addObjectForm.addEventListener('submit', this.addObjectCallback);
@@ -29,18 +43,20 @@ class App {
         let isValid = true;
 
         const poolind = Number(formObj['poolind']);
-        if (!formObj['poolind'].trim() || poolind >= cluster.pools.length) {
+        if (!formObj['poolind'].trim() || poolind < 0 || poolind >= cluster.pools.length) {
             addErrorToForm(form, 'poolind')
             isValid = false;
         }
 
         const osdind = Number(formObj['osdind']);
-        if (!formObj['osdind'].trim() || osdind >= cluster.pools[poolind].OSDs.length) {
+        if (!formObj['osdind'].trim() || osdind < 0 || osdind >= cluster.pools[poolind].OSDs.length) {
             addErrorToForm(form, 'osdind')
             isValid = false;
         }
 
-        cluster.delOSD(poolind, osdind);
+        if (isValid) {
+            cluster.delOSD(poolind, osdind);
+        }
     }
 
     addObjectCallback(event) {
@@ -53,13 +69,13 @@ class App {
         let isValid = true;
 
         const poolind = Number(formObj['poolind']);
-        if (!formObj['poolind'].trim() || poolind >= cluster.pools.length) {
+        if (!formObj['poolind'].trim() || poolind < 0 || poolind >= cluster.pools.length) {
             addErrorToForm(addObjectForm, 'poolind')
             isValid = false;
         }
 
         const objectid = Number(formObj['objectid']);
-        if (!formObj['objectid'].trim() || cluster.pools[poolind].existObject(objectid)) {
+        if (!formObj['objectid'].trim() || objectid < 0 || cluster.existObject(objectid)) {
             addErrorToForm(addObjectForm, 'objectid')
             isValid = false;
         }

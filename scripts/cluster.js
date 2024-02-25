@@ -1,12 +1,20 @@
+import app from './app.js';
 import canvas from './canvas.js';
 import { Pool } from './pool.js';
 
 class Cluster {
     constructor() {
+        this.up = true;
     }
 
     create() {
         canvas.startDraw();
+    }
+
+    down() {
+        this.up = false;
+        app.lock();
+        const params = document.querySelector('.params');
     }
 
     start(cntPools, osds, rfs) {
@@ -21,8 +29,24 @@ class Cluster {
         return cluster.pools.indexOf(pool);
     }
 
+    hashObject(id) {
+        return id;
+    }
+
     addObject(poolInd, id) {
-        this.pools[poolInd].addObject(id);
+        this.pools[poolInd].addObject(this.hashObject(id));
+    }
+
+    existObject(id) {
+        return this.pools.some(pool => {
+            return pool.OSDs.some(osd => {
+                return osd.objects.some(obj => {
+                    if (obj.id == id) {
+                        return true;
+                    }
+                })
+            })
+        })
     }
 
     delOSD(poolInd, osdInd) {

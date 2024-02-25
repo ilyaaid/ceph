@@ -14,7 +14,7 @@ class Canvas {
             selection: false,
         });
         this.pool2ind = {};
-        this.levels = [10, 100, 200, 500];
+        this.levels = [-100, -50, 50, 300]; // TODO
         this.visPool = {
             ind: 0,
             objects: [],
@@ -99,13 +99,9 @@ class Canvas {
     }
 
     drawPool(ind) {
-        if (this.visPool.ind != ind && this.visPool.objects.length > 0) {
-            this.visPool.objects.forEach(item => this.canvas.remove(item));
-        }
-        if (this.visPool.ind != ind) {
-            this.drawPGs(ind)
-            this.visPool.ind = ind;
-        }
+        this.visPool.objects.forEach(item => this.canvas.remove(item));
+        this.drawPGs(ind)
+        this.visPool.ind = ind;
     }
 
     drawPGs(poolInd) {
@@ -162,12 +158,14 @@ class Canvas {
                     fpg.left + fpg.width / 2, fpg.top + fpg.height,
                     fosd.left + fosd.width / 2, fosd.top
                 ], {
+                    strokeDashArray: [5, 5],
                     stroke: 'grey',
                     strokeWidth: 1,
                     selectable: false,
                     evented: false,
                 })
                 if (i == primaryOSD) {
+                    line.strokeDashArray = [];
                     line.stroke = 'black';
                 }
                 this.addVisPoolObj(line);
@@ -243,7 +241,7 @@ class Canvas {
         obj.top = path[0].top;
         this.canvas.add(obj);
 
-        const speed = 1;
+        const speed = 100;
         let nextPathInd = 1;
         const animate = () => {
             if (nextPathInd == path.length) {
@@ -264,6 +262,11 @@ class Canvas {
             }
         };
         animate();
+    }
+
+
+    delOSD() {
+
     }
 }
 

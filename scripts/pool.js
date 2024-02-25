@@ -1,4 +1,5 @@
 import canvas from './canvas.js';
+import cluster from './cluster.js';
 import { OSD } from './osd.js';
 
 export class Pool {
@@ -6,7 +7,6 @@ export class Pool {
         this.create(ind);
         this.PGs = [];
         this.OSDs = [];
-        this.objectsid = [];
         this.createOSDs(cntOsds, rf);
     }
 
@@ -67,16 +67,6 @@ export class Pool {
                 selectosds.splice(randInd, 1);
             }
             pg.primaryOSD = pg.osds[primary];
-
-            // let startInd = Math.floor(Math.random() * cnt)
-            // let primary = Math.floor(Math.random() * rf);
-            // for (let j = 0; j < rf; ++j, ++startInd) {
-            //     if (j == primary) {
-            //         pg.primaryOSD = startInd % cnt;
-            //     }
-            //     pg.osds.push(startInd % cnt);
-            //     this.OSDs[startInd % cnt].addPG(i);
-            // }
 
             this.PGs.push(pg);
         }
@@ -152,19 +142,71 @@ export class Pool {
         }
     }
 
-    existObject(id) {
-        return this.objectsid.includes(id);
+
+    // existObject(id) {
+    //     return this.OSDs.some(osd => {
+    //         return osd.objects.some(obj => {
+    //             if (obj.id == id) {
+    //                 return true;
+    //             }
+    //         })
+    //     })
+    // }
+
+    existWorkingOSD() {
+        return this.OSDs.some(item => {
+            if (item.working) {
+                return true;
+            }
+        })
     }
 
     addObject(id) {
-        if (!this.objectsid.includes(id)) {
-            this.objectsid.push(id);
-            canvas.addObject(this, id);
-        }
+        canvas.addObject(this, id);
     }
 
     delOSD(osdind) {
-        console.log(osdind);
-        // this.OSDs[osdind].
+        const osd = this.OSDs[osdind];
+        // сначала перекинуть все связи с плейсмент группами на другие osd, учесть primaryOSD
+        osd.PGs.forEach(pgind => {
+            const pg = this.PGs[pgind];
+            const ind = pg.osds.indexOf(osdind);
+            const temposd = [];
+            for (let i = 0; i < this.OSDs.length; ++i) {
+                if (this.OSDs[i].working && !pg.osds.includes(i)) {
+                    temposd.push(i);
+                }
+            }
+            pg.osds.splice(ind, 1);
+
+            if (temposd.length > 0) {
+                let newosdind = Math.floor(Math.random() * temposd.length);
+                pg.osds.push(temposd[newosdind]);
+                this.OSDs[temposd[newosdind]].addPG(pgind);
+            }
+
+            if (pg.primaryOSD == osdind) {
+                pg.primaryOSD = pg.osds[Math.floor(Math.random() * pg.osds.length)];
+                if (pg.primaryOSD === undefined) {
+                    // cluster.down();
+                }
+            }
+        });
+        osd.PGs = [];
+
+        // затем пройтись по объектам osd и каждый объект перекинуть в нужные osd
+        console.log(this.PGs);
+        osd.objects.forEach(item => {
+            this.PGs[item.pgInd].osds.forEach(osdind => {
+                this.OSDs[osdind].addObject(this, item.id);
+            });
+        });
+
+        osd.objects = [];
+        osd.delete(this);
+        // отрисовать итоговую картину кластера
+        if (canvas.visPool.ind == cluster.getPoolInd(this)) {
+            canvas.drawPool(cluster.getPoolInd(this));
+        }
     }
 }
