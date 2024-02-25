@@ -14,7 +14,7 @@ class Canvas {
             selection: false,
         });
         this.pool2ind = {};
-        this.levels = [-100, -50, 50, 300]; // TODO
+        this.levels = [10, 100, 200, 400]; // TODO
         this.visPool = {
             ind: 0,
             objects: [],
@@ -65,7 +65,7 @@ class Canvas {
 
     drawCluster() {
         this.drawPools();
-        this.drawPGs(0) // DELETE
+        // this.drawPGs(0) // DELETE
     }
 
     drawPools() {
@@ -241,14 +241,16 @@ class Canvas {
         obj.top = path[0].top;
         this.canvas.add(obj);
 
-        const speed = 100;
+        const speed = 1;
         let nextPathInd = 1;
         const animate = () => {
             if (nextPathInd == path.length) {
                 this.canvas.remove(obj);
-                pg.osds.forEach(item => {
-                    pool.OSDs[item].addObject(pool, id);
-                })
+                if (pg.primaryOSD.working) {
+                    pg.osds.forEach(item => {
+                        pool.OSDs[item].addObject(pool, id);
+                    })
+                }
             } else {
                 let leftstep = (path[nextPathInd].left - obj.left) / ((path[nextPathInd].top - obj.top) / speed);
                 obj.top += speed;

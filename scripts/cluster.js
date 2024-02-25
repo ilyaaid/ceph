@@ -32,7 +32,6 @@ class Cluster {
     hashObject(id) {
         return id;
     }
-
     addObject(poolInd, id) {
         this.pools[poolInd].addObject(this.hashObject(id));
     }

@@ -19,15 +19,15 @@ class App {
         const addObjectForm = document.querySelector('.js-add-object');
         const delOSDForm = document.querySelector('.js-del-osd');
 
-        cluster.start(2, [4, 5], [3, 3]);
-        cluster.addObject(0, 1);
-        cluster.addObject(0, 2);
-        setTimeout(() => {
-            cluster.delOSD(0, 0);
-            cluster.delOSD(0, 1);
-            // cluster.delOSD(0, 2);
-            // cluster.delOSD(0, 3);
-        }, 1000);
+        // cluster.start(2, [4, 5], [3, 3]);
+        // cluster.addObject(0, 1);
+        // cluster.addObject(0, 2);
+        // setTimeout(() => {
+        //     cluster.delOSD(0, 0);
+        //     cluster.delOSD(0, 1);
+        //     // cluster.delOSD(0, 2);
+        //     // cluster.delOSD(0, 3);
+        // }, 1000);
         delOSDForm.addEventListener('submit', this.delOSDCallback);
         startForm.addEventListener('submit', this.startCallback);
         addObjectForm.addEventListener('submit', this.addObjectCallback);
@@ -135,7 +135,7 @@ class App {
 
         if (isValid) {
             cluster.start(cntPools, osds, rfs);
-            const addObjectForm = document.querySelector('.js-add-object')
+            const addObjectForm = document.querySelector('.page-2')
             addObjectForm.classList.remove('invisible');
             startForm.classList.add('invisible');
         }
