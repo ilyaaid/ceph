@@ -246,7 +246,7 @@ class Canvas {
         const animate = () => {
             if (nextPathInd == path.length) {
                 this.canvas.remove(obj);
-                if (pg.primaryOSD.working) {
+                if (pool.OSDs[pg.primaryOSD].working) {
                     pg.osds.forEach(item => {
                         pool.OSDs[item].addObject(pool, id);
                     })
